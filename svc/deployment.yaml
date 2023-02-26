@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: svc-verify
+  labels:
+    app: svc-verify
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: svc-verify
+  template:
+    metadata:
+      labels:
+        app: svc-verify
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "verify"
+        dapr.io/app-port: "8080"
+        dapr.io/log-level: "debug"
+#        dapr.io/config: "tracing"
+    spec:
+      containers:
+        - name: server
+          image: davidleitw/dapr-test-svc-verify:latest
+          ports:
+            - containerPort: 8080
+          imagePullPolicy: Always
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: svc-verify
+  labels:
+    app: svc-verify
+spec:
+  selector:
+    app: svc-verify
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8080
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: svc-addition
+  labels:
+    app: svc-addition
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: svc-addition
+  template:
+    metadata:
+      labels:
+        app: svc-addition
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "addition"
+        dapr.io/app-port: "8080"
+        dapr.io/log-level: "debug"
+        dapr.io/enable-api-logging: "true"
+    spec:
+      containers:
+        - name: server
+          image: davidleitw/dapr-test-svc-addition:latest
+          ports:
+            - containerPort: 8080
+          imagePullPolicy: Always
