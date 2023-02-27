@@ -35,15 +35,15 @@ func proxyHandler(ctx *fasthttp.RequestCtx, appId string) {
 		log.Println("enable sidecar address with req.SetRequestURI")
 		req.SetRequestURI("http://localhost:3500")
 	}
-	// req.SetRequestURI(sidecarAddress)
-	req.SetBody(ctx.PostBody())
 
+	req.SetBodyRaw(ctx.PostBody())
 	if err := proxyClient.Do(req, res); err != nil {
 		log.Println("proxy handler, get error: ", err.Error())
 	}
 
 	log.Printf("proxy handler got result, status code = %d, body = %s", res.StatusCode(), string(res.Body()))
-	ctx.SetBody(res.Body())
+
+	ctx.Response.SetBodyRaw(res.Body())
 	ctx.SetStatusCode(res.StatusCode())
 }
 
