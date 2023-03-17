@@ -1,9 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: svc-verify
   labels:
     app: svc-verify
+  name: svc-verify
+  namespace: "adelais-fn"
 spec:
   replicas: 1
   selector:
@@ -48,6 +49,7 @@ metadata:
   name: svc-addition
   labels:
     app: svc-addition
+  namespace: "adelais-fn"
 spec:
   replicas: 1
   selector:
@@ -67,6 +69,35 @@ spec:
       containers:
         - name: server
           image: davidleitw/dapr-test-svc-addition:latest
+          ports:
+            - containerPort: 8080
+          imagePullPolicy: Always
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: svc-echo
+  labels:
+    app: svc-echo
+  namespace: "adelais-fn"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: svc-echo
+  template:
+    metadata:
+      labels:
+        app: svc-echo
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "echo"
+        dapr.io/app-port: "8080"
+        dapr.io/log-level: "debug"
+    spec:
+      containers:
+        - name: server
+          image: davidleitw/dapr-test-svc-echo:latest
           ports:
             - containerPort: 8080
           imagePullPolicy: Always
